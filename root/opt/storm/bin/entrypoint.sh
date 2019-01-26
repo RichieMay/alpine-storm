@@ -49,6 +49,7 @@ supervisor.slots.ports:
     - 6703
 storm.zookeeper.port: 2181
 ui.port: 8080
+worker.childopts: "$JVM_OPTS"
 EOF
 }
 
