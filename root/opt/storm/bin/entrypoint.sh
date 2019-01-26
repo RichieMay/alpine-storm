@@ -17,14 +17,14 @@ get_service_addr()
 gen_storm_zookeeper_servers()
 {
     for zookeeper in $*; do
-        echo "\t-\"$zookeeper\"\n"
+        echo " - \"$zookeeper\"\n"
     done
 }
 
 gen_storm_nimbus_servers()
 {
     for nimbus in $*; do
-        if [ -z $nimbus_seeds]; then
+        if [ -z $nimbus_seeds ]; then
             nimbus_seeds="[\"$nimbus\""
         else
             nimbus_seeds=$nimbus_seeds",\"$nimbus\""
@@ -36,9 +36,9 @@ gen_storm_nimbus_servers()
 gen_storm_conf() 
 {
 cat << EOF > ${SERVICE_CONF}
-storm.zookeeper.servers:
-$(echo -e $1)
-nimbus.seeds:$2
+storm.zookeeper.servers: 
+ $(echo -e $1)
+nimbus.seeds: $2
 storm.local.dir: "$STORM_DATA_DIR"
 supervisor.slots.ports:
     - 6700
