@@ -35,11 +35,13 @@ gen_storm_nimbus_servers()
 
 gen_storm_conf() 
 {
+local_hostname=`hostname -i`
 cat << EOF > ${SERVICE_CONF}
 storm.zookeeper.servers: 
  $(echo -e $1)
 nimbus.seeds: $2
 storm.local.dir: "$STORM_DATA_DIR"
+storm.local.hostname: "$local_hostname"
 supervisor.slots.ports:
     - 6700
     - 6701
