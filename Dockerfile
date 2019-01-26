@@ -15,7 +15,7 @@ ENV SERVICE_RELEASE=apache-storm-"$SERVICE_VERSION" \
     PATH=$PATH:${SERVICE_HOME}/bin
 
 RUN apk update && apk upgrade
-RUN apk add curl && mkdir -p /opt
+RUN apk add curl bash bash-completion && mkdir -p /opt
 
 # Install and configure storm
 RUN curl -sS -k ${SERVICE_URL}/${SERVICE_RELEASE}/${SERVICE_RELEASE}.tar.gz | gunzip -c - | tar -xf - -C /opt \
