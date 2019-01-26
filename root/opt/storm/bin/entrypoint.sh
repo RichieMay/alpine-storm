@@ -28,6 +28,7 @@ gen_storm_nimbus_servers()
             nimbus_seeds="[\"$nimbus\""
         else
             nimbus_seeds=$nimbus_seeds",\"$nimbus\""
+        fi
     done
     echo "$nimbus_seeds]"
 }
