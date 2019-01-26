@@ -60,4 +60,14 @@ nimbus_servers=$(gen_storm_nimbus_servers $nimbus)
 
 gen_storm_conf "$zk_servers" "$nimbus_servers"
 
-bin/storm $1
+case $1 in
+    --daemon)
+        shift
+        for daemon in $*; do
+          nohup bin/storm $daemon >/dev/null 2>&1 &
+        done
+    ;;
+    *)
+        echo "usage: --daemon [nimbus supervisor ui logviewer]"
+    ;;
+esac
