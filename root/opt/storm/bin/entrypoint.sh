@@ -68,6 +68,6 @@ case $1 in
         done
     ;;
     *)
-        echo "usage: --daemon [nimbus supervisor ui logviewer]"
+        echo "usage: --daemon [nimbus|supervisor|ui|logviewer]"
     ;;
 esac
