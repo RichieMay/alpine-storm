@@ -73,3 +73,5 @@ case $1 in
         echo "usage: --daemon [nimbus|supervisor|ui|logviewer]"
     ;;
 esac
+
+wait
