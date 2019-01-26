@@ -1,34 +1,60 @@
 #!/bin/sh
+STORM_DATA_DIR=${STORM_DATA_DIR:-${SERVICE_HOME}"/data"}
+STORM_NIMBUS_SERVICE=${STORM_NIMBUS_SERVICE:-"storm/nimbus"}
 
-gen_conf() 
+#stack service
+get_service_addr()
+{
+    metadata_url="http://rancher-metadata/latest"
+    containers_path=`printf "/stacks/%s/services/%s/containers" $1 $2`
+    containers_indexs=`curl -s $metadata_url$containers_path|awk -F '=' '{print $1}'`
+    for index in $containers_indexs; do
+        ip=`curl -s $metadata_url$containers_path/$index/primary_ip`
+        echo $ip
+    done
+}
+
+gen_storm_zookeeper_servers()
+{
+    for zookeeper in $*; do
+        echo "\t-\"$zookeeper\"\n"
+    done
+}
+
+gen_storm_nimbus_servers()
+{
+    for nimbus in $*; do
+        if [ -z $nimbus_seeds]; then
+            nimbus_seeds="[\"$nimbus\""
+        else
+            nimbus_seeds=$nimbus_seeds",\"$nimbus\""
+    done
+    echo "$nimbus_seeds]"
+}
+
+gen_storm_conf() 
 {
 cat << EOF > ${SERVICE_CONF}
 storm.zookeeper.servers:
-     - "131.10.10.202"
-     - "131.10.10.203"
-     - "131.10.10.204"
-nimbus.seeds: ["cluster202"]
-storm.local.dir: "/opt/cluster/storm/data"
+$(echo -e $1)
+nimbus.seeds:$2
+storm.local.dir: "$STORM_DATA_DIR"
 supervisor.slots.ports:
-       - 6700
-       - 6701
-       - 6702
-       - 6703
+    - 6700
+    - 6701
+    - 6702
+    - 6703
 storm.zookeeper.port: 2181
 ui.port: 8080
 EOF
 }
 
-gen_conf
+zookeeper=$(get_service_addr $(echo ${ZK_SERVICE//'/'/' '}))
+zk_servers=$(gen_storm_zookeeper_servers $zookeeper)
 
-while true
-do
-	sleep 1
-done
+nimbus=$(get_service_addr $(echo ${STORM_NIMBUS_SERVICE//'/'/' '}))
+nimbus_servers=$(gen_storm_nimbus_servers $nimbus)
 
-echo $*
+gen_storm_conf "$zk_servers" "$nimbus_servers"
 
-printf "/stacks/zookeeper/services/zk/containers"
-
-# ZK={{range \$i, \$e := ls (printf "/stacks/%s/services/%s/containers" \$zk_stack \$zk_service)}}{{if \$i}},{{end}}{{getv (printf "/stacks/%s/services/%s/containers/%s/primary_ip" \$zk_stack \$zk_service \$e)}}:2181{{end}}
-
+bin/storm $1
