@@ -14,6 +14,16 @@ get_service_addr()
     done
 }
 
+#stack service
+get_service_containers_name()
+{
+    metadata_url="http://rancher-metadata/latest"
+    containers_path=`printf "/stacks/%s/services/%s/containers" $1 $2`
+    containers_name=`curl -s $metadata_url$containers_path|awk -F '=' '{print $2}'`
+    echo $containers_name
+}
+
+
 gen_storm_zookeeper_servers()
 {
     for zookeeper in $*; do
@@ -35,13 +45,11 @@ gen_storm_nimbus_servers()
 
 gen_storm_conf() 
 {
-local_hostname=`hostname -i`
 cat << EOF > ${SERVICE_CONF}
 storm.zookeeper.servers: 
  $(echo -e $1)
 nimbus.seeds: $2
 storm.local.dir: "$STORM_DATA_DIR"
-storm.local.hostname: "$local_hostname"
 supervisor.slots.ports:
     - 6700
     - 6701
@@ -54,11 +62,11 @@ worker.childopts: "$JVM_OPTS"
 EOF
 }
 
-zookeeper=$(get_service_addr $(echo ${ZK_SERVICE//'/'/' '}))
+zookeepers=$(get_service_addr $(echo ${ZK_SERVICE//'/'/' '}))
 zk_servers=$(gen_storm_zookeeper_servers $zookeeper)
 
-nimbus=$(get_service_addr $(echo ${STORM_NIMBUS_SERVICE//'/'/' '}))
-nimbus_servers=$(gen_storm_nimbus_servers $nimbus)
+nimbuses_hostname=$(get_service_containers_name $(echo ${STORM_NIMBUS_SERVICE//'/'/' '}))
+nimbus_servers=$(gen_storm_nimbus_servers $nimbuses_hostname)
 
 gen_storm_conf "$zk_servers" "$nimbus_servers"
 
