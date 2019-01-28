@@ -2,6 +2,9 @@
 STORM_DATA_DIR=${STORM_DATA_DIR:-${SERVICE_HOME}"/data"}
 STORM_NIMBUS_SERVICE=${STORM_NIMBUS_SERVICE:-"storm/nimbus"}
 
+# 更改数据存储目录权限
+chown -R ${SERVICE_USER}:${SERVICE_GROUP} ${STORM_DATA_DIR}
+
 #stack service
 get_service_addr()
 {
