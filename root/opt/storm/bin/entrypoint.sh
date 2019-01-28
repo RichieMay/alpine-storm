@@ -63,7 +63,7 @@ EOF
 }
 
 zookeepers=$(get_service_addr $(echo ${ZK_SERVICE//'/'/' '}))
-zk_servers=$(gen_storm_zookeeper_servers $zookeeper)
+zk_servers=$(gen_storm_zookeeper_servers $zookeepers)
 
 nimbuses_hostname=$(get_service_containers_name $(echo ${STORM_NIMBUS_SERVICE//'/'/' '}))
 nimbus_servers=$(gen_storm_nimbus_servers $nimbuses_hostname)
